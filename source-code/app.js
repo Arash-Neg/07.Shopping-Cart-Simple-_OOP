@@ -11,6 +11,9 @@ const cartContent = document.querySelector(".cart-content"); // Items added to t
 const productsDOM = document.querySelector(".products-center"); //Shop Items
 const clearCartBtn = document.querySelector(".clear-cart"); //Cart Modal Clear Button
 
+let cart = [];
+let cartButtons = [];
+
 //* 1.Get Products
 class Products {
   getProducts() {
@@ -38,7 +41,6 @@ class UI {
     });
     productsDOM.innerHTML = results;
   }
-
   addToCartBtns() {
     cartButtons = [...document.querySelectorAll(".add-to-cart")];
     cartButtons.forEach((btn) => {
@@ -78,6 +80,7 @@ class UI {
       });
     });
   }
+
   setCartValue(cart) {
     //Cart Items
     //Cart Total Price
@@ -228,7 +231,7 @@ class UI {
   }
 }
 
-//*3. Store the Products in Local Storage
+//Store the Products in Local Storage
 class Storage {
   static saveProducts(products) {
     localStorage.setItem("Products", JSON.stringify(products)) || [];
