@@ -108,6 +108,124 @@ class UI {
       `;
     cartContent.appendChild(DIV);
   }
+
+  //Update the items added to the UI when reloading
+  setupApp() {
+    //get cart from Local Storage
+    cart = Storage.getCartItemFromDOM();
+    //add cart items
+    cart.forEach((item) => this.addCartItems(item));
+    //set cart item values : price, quantity
+    this.setCartValue(cart);
+  }
+
+  cartLogic() {
+    //clear cart:
+    clearCartBtn.addEventListener("click", () => this.clearCart());
+
+    //cart functionality
+    cartContent.addEventListener("click", (event) => {
+      // console.log(event.target);
+      if (event.target.classList.contains("fa-chevron-up")) {
+        // console.log(event.target.dataset.id);
+        const addQuantity = event.target;
+
+        // 1. get from cart
+        const addedItem = cart.find(
+          (cItem) => cItem.id === Number(addQuantity.dataset.id)
+        );
+        addedItem.quantity++;
+
+        //2. update cart value and quantity
+        this.setCartValue(cart);
+
+        //3. save cart
+        Storage.saveCart(cart);
+
+        //4. update cart item in UI
+        // console.log(addQuantity.nextElementSibling);
+        addQuantity.nextElementSibling.textContent = addedItem.quantity;
+      }
+
+      if (event.target.classList.contains("fa-chevron-down")) {
+        // console.log(event.target.dataset.id);
+        const subQuantity = event.target;
+        // 1. get from cart
+        const subtractedItem = cart.find(
+          (cItem) => cItem.id === Number(subQuantity.dataset.id)
+        );
+
+        if (subtractedItem.quantity === 1) {
+          this.removeCartItemsById(subtractedItem.id);
+          cartContent.removeChild(subQuantity.parentElement.parentElement);
+          setTimeout(() => {
+            if (!cartContent.children.length) {
+              closeModalFunction();
+            }
+          }, 400);
+          return;
+        }
+
+        subtractedItem.quantity--;
+        //2. update cart value and quantity
+        this.setCartValue(cart);
+        //3. save cart
+        Storage.saveCart(cart);
+        //4. update cart item in UI
+        // console.log(addQuantity.nextElementSibling);
+        subQuantity.previousElementSibling.textContent =
+          subtractedItem.quantity;
+      }
+
+      if (event.target.classList.contains("fa-trash-alt")) {
+        const removeItem = event.target;
+        // console.log(removeItem);
+        const _removedItem = cart.find(
+          (cItem) => cItem.id === Number(removeItem.dataset.id)
+        );
+
+        this.removeCartItemsById(_removedItem.id);
+        // Storage.saveCart(cart);
+        cartContent.removeChild(removeItem.parentElement);
+
+        setTimeout(() => {
+          if (!cartContent.children.length) {
+            closeModalFunction();
+          }
+        }, 400);
+      }
+    });
+  }
+
+  clearCart() {
+    cart.forEach((cItem) => this.removeCartItemsById(cItem.id));
+
+    //remove cart content childrens
+    while (cartContent.children.length) {
+      cartContent.removeChild(cartContent.children[0]);
+    }
+
+    setTimeout(() => {
+      closeModalFunction();
+    }, 700);
+  }
+
+  removeCartItemsById(cId) {
+    //update the cart:
+    cart = cart.filter((cItem) => cItem.id !== cId);
+    //update total price and quantity values:
+    this.setCartValue(cart);
+
+    //update storage
+    Storage.saveCart(cart);
+
+    this.restoreCartButtonsTxt(cId);
+  }
+  restoreCartButtonsTxt(cId) {
+    const buttons = cartButtons.find((b) => Number(b.dataset.id) === cId);
+    buttons.textContent = "Add to Cart";
+    buttons.disabled = false;
+  }
 }
 
 //*3. Store the Products in Local Storage
@@ -136,6 +254,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const ui = new UI();
   ui.setupApp();
   ui.displayProducts(productsData);
+  ui.addToCartBtns();
+  ui.cartLogic();
 
   Storage.saveProducts(productsData);
 });
