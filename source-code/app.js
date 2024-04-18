@@ -38,7 +38,7 @@ class UI {
     });
     productsDOM.innerHTML = results;
   }
-  
+
   addToCartBtns() {
     cartButtons = [...document.querySelectorAll(".add-to-cart")];
     cartButtons.forEach((btn) => {
@@ -78,6 +78,36 @@ class UI {
       });
     });
   }
+  setCartValue(cart) {
+    //Cart Items
+    //Cart Total Price
+    let tempCartTotal = 0;
+    const totalPrice = cart.reduce((acc, curr) => {
+      tempCartTotal += curr.quantity;
+      return acc + curr.quantity * curr.price;
+    }, 0);
+    cartTotal.textContent = `Total Price: ${totalPrice.toFixed(2)}$`;
+    cartItems.textContent = tempCartTotal;
+  }
+
+  addCartItems(cartItem) {
+    const DIV = document.createElement("div");
+    DIV.classList.add("cart-item");
+    DIV.innerHTML = `
+    <img class="cart-item-img" src=${cartItem.imageUrl} />
+    <div class="cart-item-desc">
+      <h4>${cartItem.title}</h4>
+      <h5>$ ${cartItem.price}</h5>
+    </div>
+    <div class="cart-item-conteoller">
+      <i class="fas fa-chevron-up" data-id = ${cartItem.id}></i>
+      <p>${cartItem.quantity}</p>
+      <i class="fas fa-chevron-down" data-id = ${cartItem.id}></i>
+      </div>
+      <i class="fas fa-trash-alt" data-id = ${cartItem.id}></i>
+      `;
+    cartContent.appendChild(DIV);
+  }
 }
 
 //*3. Store the Products in Local Storage
@@ -93,6 +123,10 @@ class Storage {
 
   static saveCart(cart) {
     localStorage.setItem("CartItems", JSON.stringify(cart)) || [];
+  }
+
+  static getCartItemFromDOM() {
+    return JSON.parse(localStorage.getItem("CartItems")) || [];
   }
 }
 
