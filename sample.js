@@ -112,6 +112,7 @@ class UI {
     cartContent.appendChild(DIV);
   }
 
+  //Update the items added to the UI when reloading
   setupApp() {
     //get cart from Local Storage
     cart = Storage.getCartItemFromDOM();
@@ -230,7 +231,7 @@ class UI {
   }
 }
 
-//* 3.Store the Products in Local Storage
+//Store the Products in Local Storage
 class Storage {
   static saveProducts(products) {
     localStorage.setItem("Products", JSON.stringify(products)) || [];
